@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  deserthabood-web:
+    build:
+      context: ./docker/php/
+      dockerfile: Dockerfile
+    image: php:7.4-fpm
+    container_name: deserthabood-web
+    links:
+      - deserthabood-db
+    depends_on:
+      - deserthabood-db
+    networks:
+      - deserthabood-project
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    working_dir: /var/www
+
+  deserthabood-webserver:
+    image: nginx:alpine
+    container_name: deserthabood-webserver
+    depends_on:
+      - deserthabood-web
+    networks:
+      - deserthabood-project
+    ports:
+      - '81:80'
+      - '445:443'
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/:/etc/nginx/conf.d/
+    domainname: local.deserthabood.backend
+    hostname: local.deserthabood.backend
+
+  deserthabood-db:
+    image: mysql:5.7
+    container_name: deserthabood-db
+    restart: unless-stopped
+    tty: true
+    env_file: ./.env
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    networks:
+      - deserthabood-project
+    volumes:
+      - deserthaboodDBDate:/var/lib/mysql/
+
+#Docker Networks
+networks:
+  deserthabood-project:
+    driver: bridge
+
+#Volumes
+volumes:
+  deserthaboodDBDate:
+    driver: local
