@@ -1,42 +1,42 @@
 version: '3.3'
 
 services:
-  deserthabood-web:
+  ct-pos-web:
     build:
       context: ./docker/php/
       dockerfile: Dockerfile
     image: php:7.4-fpm
-    container_name: deserthabood-web
+    container_name: ct-pos-web
     links:
-      - deserthabood-db
+      - ct-pos-db
     depends_on:
-      - deserthabood-db
+      - ct-pos-db
     networks:
-      - deserthabood-project
+      - ct-pos-project
     volumes:
       - ./:/var/www
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     working_dir: /var/www
 
-  deserthabood-webserver:
+  ct-pos-webserver:
     image: nginx:alpine
-    container_name: deserthabood-webserver
+    container_name: ct-pos-webserver
     depends_on:
-      - deserthabood-web
+      - ct-pos-web
     networks:
-      - deserthabood-project
+      - ct-pos-project
     ports:
       - '81:80'
       - '445:443'
     volumes:
       - ./:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/
-    domainname: local.deserthabood.backend
-    hostname: local.deserthabood.backend
+    domainname: local.ct-pos.backend
+    hostname: local.ct-pos.backend
 
-  deserthabood-db:
+  ct-pos-db:
     image: mysql:5.7
-    container_name: deserthabood-db
+    container_name: ct-pos-db
     restart: unless-stopped
     tty: true
     env_file: ./.env
@@ -48,16 +48,16 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_USER: ${DB_USERNAME}
     networks:
-      - deserthabood-project
+      - ct-pos-project
     volumes:
-      - deserthaboodDBDate:/var/lib/mysql/
+      - ct-posDBDate:/var/lib/mysql/
 
 #Docker Networks
 networks:
-  deserthabood-project:
+  ct-pos-project:
     driver: bridge
 
 #Volumes
 volumes:
-  deserthaboodDBDate:
+  ct-posDBDate:
     driver: local
